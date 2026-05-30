@@ -4,7 +4,7 @@ import type { VikunjaProject } from '@shared/schemas/vikunja'
  * Build the system prompt for the planner.
  * Kept minimal: the AI must return ONLY valid JSON.
  */
-export function buildSystemPrompt(projects: VikunjaProject[], mode: 'create' | 'existing' | 'management'): string {
+export function buildSystemPrompt(projects: VikunjaProject[], mode: 'create' | 'existing' | 'management', selectedProjectId?: number): string {
   const projectList = projects
     .map((p) => `  - id: ${p.id}, title: "${p.title}"`)
     .join('\n')
@@ -28,11 +28,19 @@ export function buildSystemPrompt(projects: VikunjaProject[], mode: 'create' | '
     }`
     allowedActions = '"create_task", "create_project"'
   } else if (mode === 'existing') {
-    modeSpecificRules = `
+    if (selectedProjectId) {
+      modeSpecificRules = `
+8. DEBES usar "mode": "existing" en el target.
+9. Usa el proyecto seleccionado por el usuario: "projectId": ${selectedProjectId}. No inventes un ID de proyecto.
+10. Mapea las tareas a ese proyecto.`
+      targetSchema = `    "mode": "existing",\n    "projectId": ${selectedProjectId}`
+    } else {
+      modeSpecificRules = `
 8. DEBES elegir uno de los PROYECTOS EXISTENTES y usar "mode": "existing" en el target.
 9. Mapea las tareas a ese proyecto.
 10. NO inventes un ID de proyecto que no esté en la lista.`
-    targetSchema = `    "mode": "existing",\n    "projectId": 123`
+      targetSchema = `    "mode": "existing",\n    "projectId": 123`
+    }
     actionsExample = `    {
       "type": "create_task",
       "title": "Título de la tarea"
@@ -41,15 +49,16 @@ export function buildSystemPrompt(projects: VikunjaProject[], mode: 'create' | '
   } else if (mode === 'management') {
     modeSpecificRules = `
 8. DEBES usar "mode": "global" en el target.
-9. Tu objetivo es crear etiquetas globales, actualizar configuraciones o categorizaciones.
-10. Usa la acción "create_label" para crear etiquetas versátiles si la nota lo sugiere.`
+9. Tu objetivo es el management en general de la plataforma (crear equipos, invitar personas, crear etiquetas, categorizaciones amplias, etc).
+10. Si la nota requiere crear o registrar una etiqueta (label/tag), DEBES usar la acción específica "create_label" con su esquema correspondiente.
+11. Usa la acción "management_action" ÚNICAMENTE para otras acciones de gestión o administración general que no tengan una acción específica (por ejemplo, crear equipos, invitar personas, etc).`
     targetSchema = `    "mode": "global"`
     actionsExample = `    {
       "type": "create_label",
-      "title": "Backend",
-      "hexColor": "#ff0000"
+      "title": "Categorización Kanban",
+      "hexColor": "#6c63ff"
     }`
-    allowedActions = '"create_label", "update_task"'
+    allowedActions = '"create_label", "update_task", "management_action"'
   }
 
   return `Eres un asistente de planificación de tareas. Tu ÚNICO trabajo es convertir notas de texto libre en un plan de acciones JSON estructurado para un gestor de proyectos.

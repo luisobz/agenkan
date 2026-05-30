@@ -37,12 +37,19 @@ export const CreateLabelActionSchema = z.object({
   hexColor: z.string().optional()
 })
 
+export const ManagementActionSchema = z.object({
+  type: z.literal('management_action'),
+  actionName: z.string(),
+  payload: z.record(z.any()).optional()
+})
+
 export const ActionSchema = z.discriminatedUnion('type', [
   CreateProjectActionSchema,
   SelectProjectActionSchema,
   CreateTaskActionSchema,
   UpdateTaskActionSchema,
-  CreateLabelActionSchema
+  CreateLabelActionSchema,
+  ManagementActionSchema
 ])
 
 /* ── Target: where actions will be executed ── */
@@ -76,6 +83,7 @@ export type SelectProjectAction = z.infer<typeof SelectProjectActionSchema>
 export type CreateTaskAction = z.infer<typeof CreateTaskActionSchema>
 export type UpdateTaskAction = z.infer<typeof UpdateTaskActionSchema>
 export type CreateLabelAction = z.infer<typeof CreateLabelActionSchema>
+export type ManagementAction = z.infer<typeof ManagementActionSchema>
 export type Action = z.infer<typeof ActionSchema>
 export type PlanTarget = z.infer<typeof PlanTargetSchema>
 export type Plan = z.infer<typeof PlanSchema>

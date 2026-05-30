@@ -23,8 +23,10 @@ export function PlanPreviewModal({ plan, onClose, onExecute, executing }: PlanPr
           <div style={{ backgroundColor: 'var(--bg-primary)', padding: '1rem', borderRadius: '8px' }}>
             {plan.target.mode === 'new' ? (
               <p>Crear nuevo proyecto: <strong>{plan.target.projectName}</strong></p>
-            ) : (
+            ) : plan.target.mode === 'existing' ? (
               <p>Usar proyecto existente ID: <strong>{plan.target.projectId}</strong></p>
+            ) : (
+              <p>Gestión global de la plataforma (sin proyecto específico)</p>
             )}
           </div>
         </div>
@@ -47,6 +49,26 @@ export function PlanPreviewModal({ plan, onClose, onExecute, executing }: PlanPr
                 )}
                 {action.type === 'create_project' && <div>Crear proyecto auxiliar: {action.name}</div>}
                 {action.type === 'update_task' && <div>Actualizar tarea ID: {action.taskId}</div>}
+                {action.type === 'create_label' && (
+                  <div>
+                    <span style={{ fontWeight: 500 }}>Crear etiqueta:</span> {action.title}
+                    {action.hexColor && (
+                      <span style={{ marginLeft: '0.5rem', display: 'inline-block', width: '12px', height: '12px', borderRadius: '50%', backgroundColor: action.hexColor, verticalAlign: 'middle' }} title={action.hexColor} />
+                    )}
+                  </div>
+                )}
+                {action.type === 'management_action' && (
+                  <div>
+                    <span style={{ fontWeight: 500 }}>Acción de Gestión:</span> {action.actionName}
+                    {action.payload && Object.keys(action.payload).length > 0 && (
+                      <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', padding: '0.5rem', backgroundColor: 'var(--bg-secondary)', borderRadius: '4px' }}>
+                        {Object.entries(action.payload).map(([k, v]) => (
+                          <div key={k}><strong>{k}:</strong> {String(v)}</div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>

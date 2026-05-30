@@ -27,8 +27,9 @@ const api = {
   planner: {
     generatePlan: (
       noteContent: string,
-      mode: 'create' | 'existing' | 'management'
-    ): Promise<unknown> => ipcRenderer.invoke('planner:generate-plan', noteContent, mode)
+      mode: 'create' | 'existing' | 'management',
+      selectedProjectId?: number
+    ): Promise<unknown> => ipcRenderer.invoke('planner:generate-plan', noteContent, mode, selectedProjectId)
   },
   executor: {
     executePlan: (

@@ -114,7 +114,7 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle(
     'planner:generate-plan',
-    async (_event, noteContent: string, mode: 'create' | 'existing' | 'management') => {
+    async (_event, noteContent: string, mode: 'create' | 'existing' | 'management', selectedProjectId?: number) => {
       ensureClients()
       const settings = getSettings()
       
@@ -131,7 +131,7 @@ export function registerIpcHandlers(): void {
       } catch (err: any) {
         return { success: false, error: 'Error de conexión con Vikunja (¿Token inválido?): ' + err.message }
       }
-      return generatePlan(ollamaAdapter, noteContent, projects, mode)
+      return generatePlan(ollamaAdapter, noteContent, projects, mode, selectedProjectId)
     }
   )
 

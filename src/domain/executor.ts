@@ -185,13 +185,46 @@ async function executeAction(
       }
 
       case 'create_label': {
-        const labelId = await resolveLabel(client, ctx, action.title)
+        const labelId = await resolveLabel(client, ctx, action.title, action.hexColor)
         return {
           actionIndex: index,
           actionType: 'create_label',
           success: true,
           message: `Etiqueta "${action.title}" creada/resuelta`,
           vikunjaId: labelId
+        }
+      }
+
+      case 'management_action': {
+        const actionNameLower = action.actionName.toLowerCase()
+        if (
+          actionNameLower === 'crear_etiqueta' ||
+          actionNameLower === 'create_label' ||
+          actionNameLower === 'etiqueta' ||
+          actionNameLower === 'label'
+        ) {
+          const labelName =
+            action.payload?.nombre ||
+            action.payload?.title ||
+            action.payload?.name ||
+            action.payload?.etiqueta ||
+            action.payload?.label
+          if (labelName && typeof labelName === 'string') {
+            const labelId = await resolveLabel(client, ctx, labelName)
+            return {
+              actionIndex: index,
+              actionType: 'management_action',
+              success: true,
+              message: `Etiqueta "${labelName}" creada en Vikunja con éxito (ID: ${labelId})`,
+              vikunjaId: labelId
+            }
+          }
+        }
+        return {
+          actionIndex: index,
+          actionType: 'management_action',
+          success: true,
+          message: `Acción de gestión administrativa registrada: ${action.actionName}`
         }
       }
 
@@ -223,13 +256,14 @@ async function executeAction(
 async function resolveLabel(
   client: VikunjaClient,
   ctx: ExecutionContext,
-  labelName: string
+  labelName: string,
+  hexColor?: string
 ): Promise<number> {
   const key = labelName.toLowerCase()
   const cached = ctx.labelCache.get(key)
   if (cached) return cached
 
-  const label = await client.createLabel(labelName)
+  const label = await client.createLabel(labelName, hexColor)
   ctx.labelCache.set(key, label.id)
   return label.id
 }

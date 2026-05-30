@@ -52,9 +52,10 @@ export async function generatePlan(
   ollama: OllamaAdapter,
   noteContent: string,
   projects: VikunjaProject[],
-  mode: 'create' | 'existing' | 'management'
+  mode: 'create' | 'existing' | 'management',
+  selectedProjectId?: number
 ): Promise<PlannerResult> {
-  const systemPrompt = buildSystemPrompt(projects, mode)
+  const systemPrompt = buildSystemPrompt(projects, mode, selectedProjectId)
   const userPrompt = buildUserPrompt(noteContent)
 
   let rawResponse = ''

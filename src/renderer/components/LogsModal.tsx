@@ -18,12 +18,11 @@ export function LogsModal({ onClose }: { onClose: () => void }) {
   }, [page])
 
   return (
-    <div className="modal-overlay interactive">
-      <div className="modal-content glass-panel" style={{ width: '80vw', maxWidth: '900px', height: '80vh', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h2>📜 Historial de Logs de Ejecución</h2>
-          <button className="btn" onClick={onClose}>Cerrar</button>
-        </div>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border-color)' }}>
+        <h2 style={{ margin: 0 }}>📜 Historial Global de Logs</h2>
+        <button className="btn" onClick={onClose}>Volver al Bloc de Notas</button>
+      </div>
 
         <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem', paddingRight: '0.5rem' }}>
           {loading && <p>Cargando...</p>}
@@ -42,7 +41,7 @@ export function LogsModal({ onClose }: { onClose: () => void }) {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
                 <div>
                   <h4 style={{ marginBottom: '0.5rem' }}>Respuesta Raw (Ollama)</h4>
-                  <pre style={{ backgroundColor: 'var(--bg-primary)', padding: '0.5rem', borderRadius: '4px', overflowX: 'auto', fontSize: '0.8rem', maxHeight: '200px' }}>
+                  <pre style={{ backgroundColor: 'var(--bg-primary)', padding: '0.5rem', borderRadius: '4px', overflowX: 'hidden', whiteSpace: 'pre-wrap', wordWrap: 'break-word', fontSize: '0.8rem', maxHeight: '200px', overflowY: 'auto' }}>
                     {log.rawResponse || log.planJson}
                   </pre>
                 </div>
@@ -79,6 +78,5 @@ export function LogsModal({ onClose }: { onClose: () => void }) {
           </button>
         </div>
       </div>
-    </div>
   )
 }

@@ -12,6 +12,8 @@ function App() {
   const [showSettings, setShowSettings] = useState(false)
   const [showLaunchMenu, setShowLaunchMenu] = useState(false)
   const [showLogs, setShowLogs] = useState(false)
+  const [showProjectSelector, setShowProjectSelector] = useState(false)
+  const [vikunjaProjects, setVikunjaProjects] = useState<any[]>([])
   const [actionMode, setActionMode] = useState<'create' | 'existing' | 'management'>('create')
 
   // Planner state
@@ -20,6 +22,7 @@ function App() {
   const [currentRawResponse, setCurrentRawResponse] = useState<string | null>(null)
   const [executing, setExecuting] = useState(false)
   const [executeResult, setExecuteResult] = useState<any | null>(null)
+  const [noteLogs, setNoteLogs] = useState<any[]>([])
 
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -41,6 +44,10 @@ function App() {
     setTitle(note.title)
     setContent(note.content)
     setExecuteResult(null)
+
+    // Fetch logs for this note
+    const logs = await window.api.logs.list({ noteId: id, limit: 5 })
+    setNoteLogs(logs as any[])
   }
 
   const createNote = () => {
@@ -48,6 +55,7 @@ function App() {
     setTitle('Nueva nota')
     setContent('')
     setExecuteResult(null)
+    setNoteLogs([])
   }
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,7 +79,7 @@ function App() {
     }, 1000)
   }
 
-  const handleGeneratePlan = async (mode: 'create' | 'existing' | 'management') => {
+  const handleGeneratePlan = async (mode: 'create' | 'existing' | 'management', selectedProjectId?: number) => {
     setShowLaunchMenu(false)
     if (!content.trim()) return
     setGenerating(true)
@@ -82,7 +90,7 @@ function App() {
       const saved: any = await window.api.notes.save({ id: activeNoteId || undefined, title, content })
       if (!activeNoteId) setActiveNoteId(saved.id)
 
-      const result: any = await window.api.planner.generatePlan(content, mode)
+      const result: any = await window.api.planner.generatePlan(content, mode, selectedProjectId)
       if (result.success && result.plan) {
         setCurrentPlan(result.plan)
         setCurrentRawResponse(result.rawResponse)
@@ -106,6 +114,8 @@ function App() {
       setCurrentPlan(null)
       setCurrentRawResponse(null)
       loadNotes() // Refresh to update isLaunched status
+      const logs = await window.api.logs.list({ noteId: activeNoteId, limit: 5 })
+      setNoteLogs(logs as any[])
     } catch (err: any) {
       alert('Error ejecutando: ' + err.message)
     } finally {
@@ -129,11 +139,11 @@ function App() {
     <div className="app-container">
       {/* Sidebar */}
       <div className="sidebar interactive">
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', gap: '0.5rem' }}>
-          <img src={logo} alt="AgenKan Logo" style={{ width: '48px', height: '48px', marginTop: '0.5rem' }} />
+        <div style={{ display: 'flex', alignItems: 'center', paddingBottom: '.5rem', borderBottom: '1px solid var(--border-color)', gap: '0.5rem' }}>
+          <img src={logo} alt="AgenKan Logo" style={{ width: '40px', height: '40px' }} />
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
             <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0, textAlign: 'center', flex: 1 }}>AgenKan</h2>
-            <button className="btn" onClick={() => setShowSettings(true)} style={{ padding: '0.4rem', position: 'absolute', right: '1rem', top: '1.5rem' }}>
+            <button className="btn" onClick={() => setShowSettings(true)} style={{ padding: '0.4rem', right: '1rem', top: '1.5rem' }}>
               ⚙️
             </button>
           </div>
@@ -157,7 +167,7 @@ function App() {
                 <div style={{ overflow: 'hidden' }}>
                   <div className="note-item-title">
                     {note.title}
-                    {note.isLaunched && <span style={{ marginLeft: '0.5rem', fontSize: '0.65rem', backgroundColor: 'var(--success)', color: '#000', padding: '2px 6px', borderRadius: '10px', verticalAlign: 'middle' }}>Lanzada</span>}
+                    {note.isLaunched ? <span style={{ marginLeft: '0.5rem', fontSize: '0.65rem', backgroundColor: 'var(--success)', color: '#000', padding: '2px 6px', borderRadius: '10px', verticalAlign: 'middle' }}>Lanzada</span> : <span style={{ marginLeft: '0.5rem', fontSize: '0.65rem', backgroundColor: 'var(--danger)', color: '#000', padding: '2px 6px', borderRadius: '10px', verticalAlign: 'middle' }}>No Lanzada</span>}
                   </div>
                   <div className="note-item-date">{new Date(note.updatedAt).toLocaleDateString()}</div>
                 </div>
@@ -174,62 +184,118 @@ function App() {
         </ul>
       </div>
 
-      {/* Editor */}
-      <div className="editor-container interactive">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-          <input
-            className="editor-title"
-            value={title}
-            onChange={handleTitleChange}
-            placeholder="Título de la nota..."
-          />
-          <div style={{ position: 'relative' }}>
-            <button
-              className="btn btn-primary interactive"
-              onClick={() => setShowLaunchMenu(!showLaunchMenu)}
-              disabled={generating || !content.trim()}
-            >
-              {generating ? '✨ Pensando...' : '✨ Lanzar a Vikunja ▼'}
-            </button>
-            {showLaunchMenu && (
-              <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '0.5rem', backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderRadius: '8px', zIndex: 10, width: '220px', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
-                <button className="btn" style={{ width: '100%', borderRadius: 0, border: 'none', borderBottom: '1px solid var(--border-color)', justifyContent: 'flex-start', padding: '0.75rem 1rem' }} onClick={() => handleGeneratePlan('create')}>
-                  📂 Crear proyecto nuevo
+      <div className="editor-container interactive" style={{ overflowY: 'auto' }}>
+        {showLogs ? (
+          <LogsModal onClose={() => setShowLogs(false)} />
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+              <input
+                className="editor-title"
+                value={title}
+                onChange={handleTitleChange}
+                placeholder="Título de la nota..."
+              />
+              <div style={{ position: 'relative' }}>
+                <button
+                  className="btn btn-primary interactive"
+                  onClick={() => setShowLaunchMenu(!showLaunchMenu)}
+                  disabled={generating || !content.trim()}
+                >
+                  {generating ? '✨ Pensando...' : '✨ Lanzar a Vikunja ▼'}
                 </button>
-                <button className="btn" style={{ width: '100%', borderRadius: 0, border: 'none', borderBottom: '1px solid var(--border-color)', justifyContent: 'flex-start', padding: '0.75rem 1rem' }} onClick={() => handleGeneratePlan('existing')}>
-                  🔗 Usar proyecto existente
-                </button>
-                <button className="btn" style={{ width: '100%', borderRadius: 0, border: 'none', justifyContent: 'flex-start', padding: '0.75rem 1rem' }} onClick={() => handleGeneratePlan('management')}>
-                  ⚙️ Management (ej. Etiquetas)
-                </button>
+                {showLaunchMenu && (
+                  <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '0.5rem', backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderRadius: '8px', zIndex: 10, width: '220px', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+                    <button className="btn" style={{ width: '100%', borderRadius: 0, border: 'none', borderBottom: '1px solid var(--border-color)', justifyContent: 'flex-start', padding: '0.75rem 1rem' }} onClick={() => handleGeneratePlan('create')}>
+                      📂 Crear proyecto nuevo
+                    </button>
+                    <button className="btn" style={{ width: '100%', borderRadius: 0, border: 'none', borderBottom: '1px solid var(--border-color)', justifyContent: 'flex-start', padding: '0.75rem 1rem' }} onClick={async () => {
+                      setShowLaunchMenu(false)
+                      try {
+                        const projs = await window.api.vikunja.listProjects()
+                        setVikunjaProjects(projs as any[])
+                        setShowProjectSelector(true)
+                      } catch (err: any) {
+                        alert('Error obteniendo proyectos: ' + err.message)
+                      }
+                    }}>
+                      🔗 Usar proyecto existente
+                    </button>
+                    <button className="btn" style={{ width: '100%', borderRadius: 0, border: 'none', justifyContent: 'flex-start', padding: '0.75rem 1rem' }} onClick={() => handleGeneratePlan('management')}>
+                      ⚙️ Management
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {executeResult && (
+              <div style={{ marginBottom: '1rem', padding: '1rem', borderRadius: '8px', backgroundColor: executeResult.status === 'success' ? 'rgba(46, 213, 115, 0.1)' : 'rgba(255, 165, 2, 0.1)', border: `1px solid ${executeResult.status === 'success' ? 'var(--success)' : 'var(--warning)'}` }}>
+                <h4 style={{ color: executeResult.status === 'success' ? 'var(--success)' : 'var(--warning)', marginBottom: '0.5rem' }}>
+                  {executeResult.status === 'success' ? 'Ejecutado con éxito' : 'Ejecutado parcialmente'}
+                </h4>
+                <ul style={{ marginLeft: '1.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                  {executeResult.results.map((r: any, i: number) => (
+                    <li key={i}>{r.message}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <textarea
+              className="editor-content"
+              value={content}
+              onChange={handleContentChange}
+              placeholder="Escribe tus ideas aquí... La IA se encargará de extraer las tareas."
+              style={{ flex: 1, minHeight: '300px' }}
+            />
+
+            {noteLogs.length > 0 && (
+              <div style={{ marginTop: '2rem', borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
+                <h3 style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>Historial de Ejecuciones de esta nota</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {noteLogs.map((log: any) => (
+                    <div key={log.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '6px', borderLeft: `4px solid ${log.status === 'success' ? 'var(--success)' : log.status === 'error' ? 'var(--danger)' : 'var(--warning)'}` }}>
+                      <div>
+                        <strong>{new Date(log.createdAt).toLocaleString()}</strong>
+                        <span style={{ marginLeft: '1rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Modelo: {log.modelUsed || 'Desconocido'}</span>
+                      </div>
+                      <span style={{ color: log.status === 'success' ? 'var(--success)' : log.status === 'error' ? 'var(--danger)' : 'var(--warning)', fontWeight: 'bold', fontSize: '0.9rem', textTransform: 'uppercase' }}>
+                        {log.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
-        </div>
-
-        {executeResult && (
-          <div style={{ marginBottom: '1rem', padding: '1rem', borderRadius: '8px', backgroundColor: executeResult.status === 'success' ? 'rgba(46, 213, 115, 0.1)' : 'rgba(255, 165, 2, 0.1)', border: `1px solid ${executeResult.status === 'success' ? 'var(--success)' : 'var(--warning)'}` }}>
-            <h4 style={{ color: executeResult.status === 'success' ? 'var(--success)' : 'var(--warning)', marginBottom: '0.5rem' }}>
-              {executeResult.status === 'success' ? 'Ejecutado con éxito' : 'Ejecutado parcialmente'}
-            </h4>
-            <ul style={{ marginLeft: '1.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-              {executeResult.results.map((r: any, i: number) => (
-                <li key={i}>{r.message}</li>
-              ))}
-            </ul>
-          </div>
         )}
-
-        <textarea
-          className="editor-content"
-          value={content}
-          onChange={handleContentChange}
-          placeholder="Escribe tus ideas aquí... La IA se encargará de extraer las tareas."
-        />
       </div>
 
       {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
-      {showLogs && <LogsModal onClose={() => setShowLogs(false)} />}
+
+      {showProjectSelector && (
+        <div className="modal-overlay interactive">
+          <div className="modal-content glass-panel">
+            <h3>Selecciona un Proyecto Existente</h3>
+            <ul style={{ listStyle: 'none', padding: 0, maxHeight: '300px', overflowY: 'auto', marginTop: '1rem' }}>
+              {vikunjaProjects.map(p => (
+                <li key={p.id}>
+                  <button className="btn" style={{ width: '100%', justifyContent: 'flex-start', marginBottom: '0.5rem' }} onClick={() => {
+                    setShowProjectSelector(false)
+                    handleGeneratePlan('existing', p.id)
+                  }}>
+                    {p.title}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+              <button className="btn" onClick={() => setShowProjectSelector(false)}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {currentPlan && (
         <PlanPreviewModal
