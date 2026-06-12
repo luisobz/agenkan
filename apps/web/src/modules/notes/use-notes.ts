@@ -1,6 +1,7 @@
 import type { Note, NoteInput } from '@agenkan/shared'
 import { useCallback, useEffect, useState } from 'react'
 import { useConnection } from '../connection/connection-context.js'
+import { useServerEvents } from '../connection/ServerEventsProvider.js'
 
 export interface UseNotes {
   notes: Note[]
@@ -34,6 +35,9 @@ export function useNotes(): UseNotes {
   useEffect(() => {
     void refresh()
   }, [refresh])
+
+  // Re-sync when another device changes the notes.
+  useServerEvents('notes', () => void refresh())
 
   const create = useCallback(
     async (input?: Partial<NoteInput>) => {

@@ -4,10 +4,15 @@ import fastifyStatic from '@fastify/static'
 import Fastify, { type FastifyInstance } from 'fastify'
 import type { AppConfig } from './config.js'
 import type { AiPlanner } from './domain/services/ai-planner.js'
+import type { DomainEventBus } from './domain/services/event-bus.js'
 import { PlanExecutorService } from './domain/services/plan-executor-service.js'
 import { PlannerService } from './domain/services/planner-service.js'
-import { createDatabase, type Database } from './infrastructure/database/connection.js'
+import {
+  createDatabase,
+  type Database
+} from './infrastructure/database/connection.js'
 import { OllamaPlanner } from './infrastructure/ai/ollama-planner.js'
+import { InMemoryEventBus } from './infrastructure/events/in-memory-event-bus.js'
 import { SqliteBoardRepository } from './infrastructure/repositories/sqlite-board-repository.js'
 import { SqliteExecutionLogRepository } from './infrastructure/repositories/sqlite-execution-log-repository.js'
 import { SqliteNoteRepository } from './infrastructure/repositories/sqlite-note-repository.js'
@@ -15,6 +20,7 @@ import { SqliteSettingsRepository } from './infrastructure/repositories/sqlite-s
 import { registerAuth } from './presentation/plugins/auth.js'
 import { registerErrorHandler } from './presentation/plugins/error-handler.js'
 import { registerBoardRoutes } from './presentation/routes/boards.js'
+import { registerEventRoutes } from './presentation/routes/events.js'
 import { registerNoteRoutes } from './presentation/routes/notes.js'
 import { registerPlannerRoutes } from './presentation/routes/planner.js'
 import { registerSettingsRoutes } from './presentation/routes/settings.js'
@@ -28,13 +34,17 @@ export interface BuildAppOptions {
   aiPlanner?: AiPlanner
   /** Injectable for tests; defaults to a database at config.databasePath. */
   database?: Database
+  /** Injectable for tests; defaults to an in-memory bus. */
+  eventBus?: DomainEventBus
 }
 
 /**
  * Composition root: wires infrastructure into the domain services and
  * exposes everything through the HTTP layer.
  */
-export async function buildApp(options: BuildAppOptions): Promise<FastifyInstance> {
+export async function buildApp(
+  options: BuildAppOptions
+): Promise<FastifyInstance> {
   const { config } = options
   const db = options.database ?? createDatabase(config.databasePath)
 
@@ -47,6 +57,7 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   })
 
   const aiPlanner = options.aiPlanner ?? new OllamaPlanner(settings)
+  const eventBus = options.eventBus ?? new InMemoryEventBus()
   const plannerService = new PlannerService(notes, boards, aiPlanner)
   const executorService = new PlanExecutorService(notes, boards, logs)
 
@@ -57,10 +68,11 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   registerAuth(app, config.apiPassword)
 
   registerSystemRoutes(app, APP_VERSION)
-  registerNoteRoutes(app, notes)
-  registerBoardRoutes(app, boards)
-  registerPlannerRoutes(app, plannerService, executorService, logs)
+  registerNoteRoutes(app, notes, eventBus)
+  registerBoardRoutes(app, boards, eventBus)
+  registerPlannerRoutes(app, plannerService, executorService, logs, eventBus)
   registerSettingsRoutes(app, settings, aiPlanner)
+  registerEventRoutes(app, eventBus)
 
   await registerWebApp(app, config.webDistPath)
 

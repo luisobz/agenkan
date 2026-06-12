@@ -11,8 +11,14 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
   const [message, setMessage] = useState<string | null>(null)
 
   useEffect(() => {
-    api.getSettings().then(setSettings).catch(() => setSettings(null))
-    api.getOllamaStatus().then(setStatus).catch(() => setStatus(null))
+    api
+      .getSettings()
+      .then(setSettings)
+      .catch(() => setSettings(null))
+    api
+      .getOllamaStatus()
+      .then(setStatus)
+      .catch(() => setStatus(null))
   }, [api])
 
   const handleSave = async () => {
@@ -41,7 +47,11 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
           <Button variant="danger" onClick={disconnect}>
             Desconectar de este servidor
           </Button>
-          <Button variant="primary" onClick={() => void handleSave()} disabled={saving || !settings}>
+          <Button
+            variant="primary"
+            onClick={() => void handleSave()}
+            disabled={saving || !settings}
+          >
             {saving ? <Spinner label="Guardando..." /> : 'Guardar'}
           </Button>
         </>
@@ -74,7 +84,10 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
                   className="ui-input"
                   value={settings.ollamaModel}
                   onChange={(event) =>
-                    setSettings({ ...settings, ollamaModel: event.target.value })
+                    setSettings({
+                      ...settings,
+                      ollamaModel: event.target.value
+                    })
                   }
                 >
                   {!status.models.includes(settings.ollamaModel) && (
@@ -103,7 +116,11 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
 
         {status && (
           <p className="settings-modal__status">
-            <Badge tone={status.reachable && status.modelAvailable ? 'success' : 'danger'}>
+            <Badge
+              tone={
+                status.reachable && status.modelAvailable ? 'success' : 'danger'
+              }
+            >
               {status.reachable
                 ? status.modelAvailable
                   ? 'Listo'

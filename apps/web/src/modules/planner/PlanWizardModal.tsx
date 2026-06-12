@@ -25,7 +25,11 @@ export interface PlanWizardModalProps {
  * Guides the "note → kanban" flow: the user picks the destination board,
  * the AI proposes a plan, and nothing touches the board until it is approved.
  */
-export function PlanWizardModal({ note, onClose, onApplied }: PlanWizardModalProps) {
+export function PlanWizardModal({
+  note,
+  onClose,
+  onApplied
+}: PlanWizardModalProps) {
   const { api } = useConnection()
   const [step, setStep] = useState<WizardStep>({ name: 'target' })
   const [target, setTarget] = useState<PlanTarget>({ mode: 'new' })
@@ -33,7 +37,10 @@ export function PlanWizardModal({ note, onClose, onApplied }: PlanWizardModalPro
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    api.listBoards().then(setBoards).catch(() => setBoards([]))
+    api
+      .listBoards()
+      .then(setBoards)
+      .catch(() => setBoards([]))
   }, [api])
 
   const generate = async (chosenTarget: PlanTarget) => {
@@ -41,7 +48,10 @@ export function PlanWizardModal({ note, onClose, onApplied }: PlanWizardModalPro
     setStep({ name: 'generating' })
     setError(null)
     try {
-      const result = await api.generatePlan({ noteId: note.id, target: chosenTarget })
+      const result = await api.generatePlan({
+        noteId: note.id,
+        target: chosenTarget
+      })
       setStep({ name: 'preview', result })
     } catch (generateError) {
       setError(
@@ -79,8 +89,13 @@ export function PlanWizardModal({ note, onClose, onApplied }: PlanWizardModalPro
 
       {step.name === 'target' && (
         <div className="plan-wizard__targets">
-          <p className="plan-wizard__question">¿Dónde quieres crear las tarjetas?</p>
-          <Button variant="primary" onClick={() => void generate({ mode: 'new' })}>
+          <p className="plan-wizard__question">
+            ¿Dónde quieres crear las tarjetas?
+          </p>
+          <Button
+            variant="primary"
+            onClick={() => void generate({ mode: 'new' })}
+          >
             📂 En un tablero nuevo
           </Button>
 

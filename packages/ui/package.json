@@ -15,7 +15,8 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint src"
   },
   "peerDependencies": {
     "react": "^19.0.0"
@@ -23,6 +24,7 @@
   "devDependencies": {
     "@agenkan/config": "workspace:*",
     "@types/react": "^19.1.4",
+    "eslint": "^9.27.0",
     "react": "^19.1.0",
     "typescript": "^5.8.3"
   }

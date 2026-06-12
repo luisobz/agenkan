@@ -13,8 +13,18 @@ const fakePlanner: AiPlanner = {
         summary: `Plan para: ${context.noteTitle}`,
         boardName: 'Tablero de prueba',
         cards: [
-          { title: 'Primera tarea', description: '', labels: ['test'], priority: 2 },
-          { title: 'Segunda tarea', description: 'Con detalle', labels: [], priority: 0 }
+          {
+            title: 'Primera tarea',
+            description: '',
+            labels: ['test'],
+            priority: 2
+          },
+          {
+            title: 'Segunda tarea',
+            description: 'Con detalle',
+            labels: [],
+            priority: 0
+          }
         ]
       },
       rawResponse: '{}',
@@ -22,7 +32,12 @@ const fakePlanner: AiPlanner = {
     }
   },
   async checkStatus() {
-    return { reachable: true, modelAvailable: true, models: ['fake-model'], message: 'ok' }
+    return {
+      reachable: true,
+      modelAvailable: true,
+      models: ['fake-model'],
+      message: 'ok'
+    }
   },
   async listModels() {
     return ['fake-model']
@@ -68,7 +83,10 @@ test('full flow: note → generated plan → applied to a new board', async () =
     method: 'POST',
     url: '/api/notes',
     headers: authHeaders,
-    payload: { title: 'Ideas del finde', content: 'Comprar pintura y pintar el salón' }
+    payload: {
+      title: 'Ideas del finde',
+      content: 'Comprar pintura y pintar el salón'
+    }
   })
   assert.equal(noteResponse.statusCode, 201)
   const note = noteResponse.json() as Note
@@ -88,7 +106,13 @@ test('full flow: note → generated plan → applied to a new board', async () =
     method: 'POST',
     url: '/api/planner/apply',
     headers: authHeaders,
-    payload: { noteId: note.id, target: { mode: 'new' }, plan, model, rawResponse }
+    payload: {
+      noteId: note.id,
+      target: { mode: 'new' },
+      plan,
+      model,
+      rawResponse
+    }
   })
   assert.equal(applyResponse.statusCode, 201)
   const { boardId, createdCardIds } = applyResponse.json()
@@ -105,7 +129,11 @@ test('full flow: note → generated plan → applied to a new board', async () =
   assert.equal(board.columns[0]?.cards[0]?.noteId, note.id)
 
   const updatedNote = (
-    await app.inject({ method: 'GET', url: `/api/notes/${note.id}`, headers: authHeaders })
+    await app.inject({
+      method: 'GET',
+      url: `/api/notes/${note.id}`,
+      headers: authHeaders
+    })
   ).json() as Note
   assert.equal(updatedNote.status, 'planned')
   assert.equal(updatedNote.boardId, boardId)

@@ -12,8 +12,8 @@ El dictado por voz usa el plugin nativo
 ### Opción A: GitHub Actions (sin instalar nada)
 
 El workflow **Android APK** (`.github/workflows/android-apk.yml`) compila la
-APK en CI. Lánzalo desde la pestaña *Actions* del repositorio (botón
-*Run workflow*) y descarga el artefacto `agenkan-debug-apk`.
+APK en CI. Lánzalo desde la pestaña _Actions_ del repositorio (botón
+_Run workflow_) y descarga el artefacto `agenkan-debug-apk`.
 
 ### Opción B: compilar en local
 

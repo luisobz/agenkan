@@ -27,7 +27,8 @@ export const PLAN_JSON_SCHEMA = {
           },
           description: {
             type: 'string',
-            description: 'Contexto y detalles de la nota. Vacío si no hay nada que añadir'
+            description:
+              'Contexto y detalles de la nota. Vacío si no hay nada que añadir'
           },
           labels: {
             type: 'array',

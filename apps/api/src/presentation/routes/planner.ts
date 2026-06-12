@@ -1,7 +1,11 @@
-import { ApplyPlanRequestSchema, GeneratePlanRequestSchema } from '@agenkan/shared'
+import {
+  ApplyPlanRequestSchema,
+  GeneratePlanRequestSchema
+} from '@agenkan/shared'
 import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import type { ExecutionLogRepository } from '../../domain/repositories/execution-log-repository.js'
+import type { DomainEventBus } from '../../domain/services/event-bus.js'
 import type { PlanExecutorService } from '../../domain/services/plan-executor-service.js'
 import type { PlannerService } from '../../domain/services/planner-service.js'
 
@@ -14,7 +18,8 @@ export function registerPlannerRoutes(
   app: FastifyInstance,
   planner: PlannerService,
   executor: PlanExecutorService,
-  logs: ExecutionLogRepository
+  logs: ExecutionLogRepository,
+  bus: DomainEventBus
 ): void {
   app.post('/api/planner/generate', async (request) => {
     const body = GeneratePlanRequestSchema.parse(request.body)
@@ -23,7 +28,11 @@ export function registerPlannerRoutes(
 
   app.post('/api/planner/apply', async (request, reply) => {
     const body = ApplyPlanRequestSchema.parse(request.body)
-    return reply.code(201).send(executor.apply(body))
+    const result = executor.apply(body)
+    // Applying a plan touches the note (status) and the destination board.
+    bus.publish({ topic: 'notes' })
+    bus.publish({ topic: 'boards', boardId: result.boardId })
+    return reply.code(201).send(result)
   })
 
   app.get('/api/logs', async (request) => {

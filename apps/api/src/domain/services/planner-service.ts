@@ -1,7 +1,4 @@
-import type {
-  GeneratePlanRequest,
-  GeneratePlanResponse
-} from '@agenkan/shared'
+import type { GeneratePlanRequest, GeneratePlanResponse } from '@agenkan/shared'
 import { NotFoundError } from '../errors.js'
 import type { BoardRepository } from '../repositories/board-repository.js'
 import type { NoteRepository } from '../repositories/note-repository.js'

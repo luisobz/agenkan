@@ -10,7 +10,10 @@ export interface KanbanViewProps {
   onSelectBoard: (boardId: string | null) => void
 }
 
-export function KanbanView({ selectedBoardId, onSelectBoard }: KanbanViewProps) {
+export function KanbanView({
+  selectedBoardId,
+  onSelectBoard
+}: KanbanViewProps) {
   const boardsApi = useBoards()
   const boardApi = useBoard(selectedBoardId)
   const [editingCard, setEditingCard] = useState<Card | null>(null)
@@ -31,7 +34,11 @@ export function KanbanView({ selectedBoardId, onSelectBoard }: KanbanViewProps) 
 
   const handleDeleteBoard = async () => {
     if (!boardApi.board) return
-    if (!window.confirm(`¿Eliminar el tablero "${boardApi.board.name}" y todas sus tarjetas?`)) {
+    if (
+      !window.confirm(
+        `¿Eliminar el tablero "${boardApi.board.name}" y todas sus tarjetas?`
+      )
+    ) {
       return
     }
     await boardsApi.remove(boardApi.board.id)
@@ -65,7 +72,9 @@ export function KanbanView({ selectedBoardId, onSelectBoard }: KanbanViewProps) 
           value={selectedBoardId ?? ''}
           onChange={(event) => onSelectBoard(event.target.value || null)}
         >
-          {boardsApi.boards.length === 0 && <option value="">Sin tableros</option>}
+          {boardsApi.boards.length === 0 && (
+            <option value="">Sin tableros</option>
+          )}
           {boardsApi.boards.map((board) => (
             <option key={board.id} value={board.id}>
               {board.name} ({board.cardCount})

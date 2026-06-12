@@ -51,7 +51,11 @@ export class OllamaPlanner implements AiPlanner {
 
       const result = this.parsePlan(lastResponse)
       if (result.ok) {
-        return { plan: result.plan, rawResponse: lastResponse, model: ollamaModel }
+        return {
+          plan: result.plan,
+          rawResponse: lastResponse,
+          model: ollamaModel
+        }
       }
 
       lastError = result.error

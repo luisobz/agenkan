@@ -10,6 +10,7 @@ import {
 } from '../../lib/connection-storage.js'
 import logo from '../../assets/logo.svg'
 import { ConnectionContext } from './connection-context.js'
+import { ServerEventsProvider } from './ServerEventsProvider.js'
 
 /**
  * Blocks the app until a verified connection exists. The first time (or after
@@ -36,7 +37,7 @@ export function ConnectionGate({ children }: { children: ReactNode }) {
     }
   }, [connection, disconnect])
 
-  if (!contextValue) {
+  if (!contextValue || !connection) {
     return (
       <ConnectionForm
         onConnected={(config) => {
@@ -49,7 +50,9 @@ export function ConnectionGate({ children }: { children: ReactNode }) {
 
   return (
     <ConnectionContext.Provider value={contextValue}>
-      {children}
+      <ServerEventsProvider connection={connection}>
+        {children}
+      </ServerEventsProvider>
     </ConnectionContext.Provider>
   )
 }

@@ -38,7 +38,9 @@ export function NotesView({ onPlanApplied }: NotesViewProps) {
   }
 
   if (error) {
-    return <div className="view-placeholder view-placeholder--error">{error}</div>
+    return (
+      <div className="view-placeholder view-placeholder--error">{error}</div>
+    )
   }
 
   return (

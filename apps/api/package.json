@@ -10,6 +10,7 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint src test",
     "test": "node --test --import tsx test/*.test.ts"
   },
   "dependencies": {
@@ -25,6 +26,7 @@
     "@agenkan/config": "workspace:*",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.15.0",
+    "eslint": "^9.27.0",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3"
   }

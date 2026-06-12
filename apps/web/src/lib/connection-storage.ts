@@ -22,7 +22,10 @@ export function loadConnection(): ConnectionConfig | null {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return null
     const parsed = JSON.parse(raw) as Partial<ConnectionConfig>
-    if (typeof parsed.baseUrl !== 'string' || typeof parsed.password !== 'string') {
+    if (
+      typeof parsed.baseUrl !== 'string' ||
+      typeof parsed.password !== 'string'
+    ) {
       return null
     }
     return { baseUrl: parsed.baseUrl, password: parsed.password }

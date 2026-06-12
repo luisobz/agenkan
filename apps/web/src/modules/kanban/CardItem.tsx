@@ -35,7 +35,10 @@ export function CardItem({ card, onClick }: CardItemProps) {
             </Badge>
           ))}
           {card.noteId && (
-            <span className="kanban-card__note-mark" title="Creada desde una nota">
+            <span
+              className="kanban-card__note-mark"
+              title="Creada desde una nota"
+            >
               📝
             </span>
           )}

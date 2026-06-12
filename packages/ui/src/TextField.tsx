@@ -15,13 +15,14 @@ export function TextInput({ label, className = '', ...rest }: TextInputProps) {
   )
 }
 
-export interface TextAreaProps
-  extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+export interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string
 }
 
 export function TextArea({ label, className = '', ...rest }: TextAreaProps) {
-  const textarea = <textarea className={`ui-input ui-textarea ${className}`} {...rest} />
+  const textarea = (
+    <textarea className={`ui-input ui-textarea ${className}`} {...rest} />
+  )
   if (!label) return textarea
   return (
     <label className="ui-field">

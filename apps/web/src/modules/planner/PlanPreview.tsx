@@ -24,7 +24,9 @@ export function PlanPreview({ plan, model }: PlanPreviewProps) {
               <PriorityBadge priority={card.priority} />
             </div>
             {card.description && (
-              <p className="plan-preview__card-description">{card.description}</p>
+              <p className="plan-preview__card-description">
+                {card.description}
+              </p>
             )}
             {card.labels.length > 0 && (
               <div className="plan-preview__card-labels">

@@ -46,6 +46,10 @@ contraseña y trabaja sobre los mismos datos.
   zod + reintento con feedback) y tú lo apruebas antes de aplicarlo.
 - **Auditoría**: cada ejecución del planner queda registrada (modelo usado,
   respuesta cruda, resultado).
+- **Sync en tiempo real**: los clientes mantienen una conexión SSE con el
+  servidor; un cambio hecho en el PC aparece en el móvil al instante.
+- **PWA instalable**: la web incluye manifest y service worker, así que puede
+  instalarse desde el navegador como app (alternativa ligera a la APK).
 - **Una sola contraseña** protege toda la API (`API_PASSWORD`).
 
 ## Requisitos
@@ -81,16 +85,22 @@ endpoint (`http://tu-ip:3210`) y la contraseña; queda configurada.
 
 ## Scripts útiles
 
-| Comando | Descripción |
-| --- | --- |
-| `pnpm dev` | Levanta API y web en modo desarrollo |
-| `pnpm build` | Build de producción de todo el monorepo |
-| `pnpm start` | Arranca el servidor (sirve también la web) |
-| `pnpm typecheck` | Comprueba tipos en todos los paquetes |
-| `pnpm test` | Tests de integración de la API |
+| Comando             | Descripción                                         |
+| ------------------- | --------------------------------------------------- |
+| `pnpm dev`          | Levanta API y web en modo desarrollo                |
+| `pnpm build`        | Build de producción de todo el monorepo             |
+| `pnpm start`        | Arranca el servidor (sirve también la web)          |
+| `pnpm typecheck`    | Comprueba tipos en todos los paquetes               |
+| `pnpm test`         | Tests: integración de la API + Vitest del frontend  |
+| `pnpm lint`         | ESLint en todos los paquetes                        |
+| `pnpm format`       | Formatea el repo con Prettier                       |
 | `pnpm android:sync` | Sincroniza la web compilada con el proyecto Android |
 
------------------------------------------------------
+El workflow **CI** (`.github/workflows/ci.yml`) ejecuta build, typecheck,
+lint, formato y tests en cada push y pull request.
+
+---
+
 AgenKan © 2026 Luis Ballester Zafra. All rights reserved.
 
 This repository and all associated source code, documentation, UI design, product naming, branding, and assets are proprietary.

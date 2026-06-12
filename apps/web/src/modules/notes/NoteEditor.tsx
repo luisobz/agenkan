@@ -103,7 +103,9 @@ export function NoteEditor({
         {speech.supported && (
           <Button
             className={speech.listening ? 'is-recording' : ''}
-            onClick={() => void (speech.listening ? speech.stop() : speech.start())}
+            onClick={() =>
+              void (speech.listening ? speech.stop() : speech.start())
+            }
             title={speech.listening ? 'Detener dictado' : 'Dictar por voz'}
           >
             {speech.listening ? '⏹ Detener' : '🎙️ Dictar'}

@@ -6,6 +6,7 @@ import type {
 } from '@agenkan/shared'
 import { useCallback, useEffect, useState } from 'react'
 import { useConnection } from '../connection/connection-context.js'
+import { useServerEvents } from '../connection/ServerEventsProvider.js'
 
 export interface UseBoards {
   boards: BoardSummary[]
@@ -28,6 +29,9 @@ export function useBoards(): UseBoards {
   useEffect(() => {
     void refresh()
   }, [refresh])
+
+  // Re-sync the board list when another device changes any board.
+  useServerEvents('boards', () => void refresh())
 
   const create = useCallback(
     async (name: string) => {
@@ -53,7 +57,11 @@ export interface UseBoard {
   board: BoardDetail | null
   loading: boolean
   refresh: () => Promise<void>
-  moveCard: (cardId: string, toColumnId: string, position: number) => Promise<void>
+  moveCard: (
+    cardId: string,
+    toColumnId: string,
+    position: number
+  ) => Promise<void>
   createCard: (input: CardInput) => Promise<void>
   updateCard: (cardId: string, update: CardUpdate) => Promise<void>
   deleteCard: (cardId: string) => Promise<void>
@@ -79,6 +87,12 @@ export function useBoard(boardId: string | null): UseBoard {
     setLoading(true)
     void refresh().finally(() => setLoading(false))
   }, [refresh])
+
+  // Re-sync when another device touches this board (or any, if unscoped).
+  useServerEvents('boards', (event) => {
+    if (event.boardId && boardId && event.boardId !== boardId) return
+    void refresh()
+  })
 
   /** Moves the card locally first so dragging feels instant. */
   const moveCard = useCallback(

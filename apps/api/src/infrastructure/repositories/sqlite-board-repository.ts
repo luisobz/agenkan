@@ -176,9 +176,9 @@ export class SqliteBoardRepository implements BoardRepository {
   }
 
   getCard(cardId: string): Card | null {
-    const row = this.db.prepare('SELECT * FROM cards WHERE id = ?').get(cardId) as
-      | CardRow
-      | undefined
+    const row = this.db
+      .prepare('SELECT * FROM cards WHERE id = ?')
+      .get(cardId) as CardRow | undefined
     return row ? toCard(row) : null
   }
 

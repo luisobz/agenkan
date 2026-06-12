@@ -24,7 +24,8 @@ interface SpeechRecognitionPlugin {
   ): Promise<{ remove: () => Promise<void> }>
 }
 
-const nativeSpeech = registerPlugin<SpeechRecognitionPlugin>('SpeechRecognition')
+const nativeSpeech =
+  registerPlugin<SpeechRecognitionPlugin>('SpeechRecognition')
 
 type WebSpeechRecognition = {
   lang: string
@@ -58,7 +59,9 @@ export interface UseSpeechToText {
   stop: () => Promise<void>
 }
 
-export function useSpeechToText(onText: (text: string) => void): UseSpeechToText {
+export function useSpeechToText(
+  onText: (text: string) => void
+): UseSpeechToText {
   const isNative = Capacitor.isNativePlatform()
   const [supported, setSupported] = useState(
     isNative || getWebSpeechConstructor() !== null
