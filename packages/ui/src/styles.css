@@ -1,0 +1,258 @@
+/* ── AgenKan design tokens ─────────────────────────────────── */
+:root {
+  --bg-base: #0f1117;
+  --bg-raised: #161a23;
+  --bg-overlay: #1d2230;
+  --bg-hover: #252b3b;
+
+  --border: #2a3040;
+  --border-strong: #3a4358;
+
+  --text-primary: #e8ebf2;
+  --text-secondary: #9aa3b5;
+  --text-muted: #646d80;
+
+  --accent: #6c63ff;
+  --accent-hover: #7d75ff;
+  --accent-soft: rgba(108, 99, 255, 0.16);
+
+  --success: #2ed573;
+  --warning: #ffa502;
+  --danger: #ff4757;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  --shadow-overlay: 0 12px 40px rgba(0, 0, 0, 0.55);
+
+  --font-sans:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ── Button ── */
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-raised);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.05s ease;
+}
+
+.ui-btn:hover:not(:disabled) {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+}
+
+.ui-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.ui-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ui-btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.ui-btn--primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.ui-btn--danger {
+  color: var(--danger);
+  border-color: rgba(255, 71, 87, 0.4);
+}
+
+.ui-btn--danger:hover:not(:disabled) {
+  background: rgba(255, 71, 87, 0.12);
+  border-color: var(--danger);
+}
+
+/* ── Badge ── */
+.ui-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.ui-badge--neutral {
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.ui-badge--accent {
+  background: var(--accent-soft);
+  color: var(--accent-hover);
+}
+
+.ui-badge--success {
+  background: rgba(46, 213, 115, 0.15);
+  color: var(--success);
+}
+
+.ui-badge--warning {
+  background: rgba(255, 165, 2, 0.15);
+  color: var(--warning);
+}
+
+.ui-badge--danger {
+  background: rgba(255, 71, 87, 0.15);
+  color: var(--danger);
+}
+
+/* ── Inputs ── */
+.ui-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.ui-field__label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.ui-input {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.92rem;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.ui-input:focus {
+  border-color: var(--accent);
+}
+
+.ui-input::placeholder {
+  color: var(--text-muted);
+}
+
+.ui-textarea {
+  resize: vertical;
+  min-height: 90px;
+  line-height: 1.55;
+}
+
+/* ── Modal ── */
+.ui-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 7, 12, 0.7);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 100;
+}
+
+.ui-modal {
+  width: 100%;
+  max-width: 640px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-overlay);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-overlay);
+}
+
+.ui-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.ui-modal__header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.ui-modal__close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: var(--radius-sm);
+}
+
+.ui-modal__close:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.ui-modal__body {
+  padding: 1.25rem;
+  overflow-y: auto;
+}
+
+.ui-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ── Spinner ── */
+.ui-spinner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+}
+
+.ui-spinner__circle {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: ui-spin 0.8s linear infinite;
+}
+
+.ui-spinner__label {
+  font-size: 0.85rem;
+}
+
+@keyframes ui-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

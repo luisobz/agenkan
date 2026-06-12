@@ -1,0 +1,726 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── App shell ─────────────────────────────────────────────── */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.app-shell__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 1rem;
+  padding-top: calc(0.6rem + env(safe-area-inset-top));
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-raised);
+}
+
+.app-shell__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.app-shell__brand img {
+  width: 28px;
+  height: 28px;
+}
+
+.app-shell__nav {
+  display: flex;
+  gap: 0.25rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.app-shell__nav button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 0.45rem 0.9rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.app-shell__nav button:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.app-shell__nav button.is-active {
+  background: var(--accent-soft);
+  color: var(--accent-hover);
+}
+
+.app-shell__settings {
+  background: none;
+  border: none;
+  font-size: 1.15rem;
+  cursor: pointer;
+  padding: 0.35rem;
+  border-radius: var(--radius-sm);
+}
+
+.app-shell__settings:hover {
+  background: var(--bg-hover);
+}
+
+.app-shell__main {
+  flex: 1;
+  min-height: 0;
+}
+
+.view-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+}
+
+.view-placeholder--error {
+  color: var(--danger);
+}
+
+/* ── Connection gate ───────────────────────────────────────── */
+.connection-gate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 1rem;
+  background:
+    radial-gradient(60% 50% at 50% 0%, rgba(108, 99, 255, 0.12), transparent),
+    var(--bg-base);
+}
+
+.connection-gate__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  width: 100%;
+  max-width: 380px;
+  padding: 2rem;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.connection-gate__logo {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto;
+}
+
+.connection-gate__card h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.connection-gate__subtitle {
+  margin: 0 0 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.connection-gate__card .ui-field {
+  text-align: left;
+}
+
+.connection-gate__error {
+  margin: 0;
+  color: var(--danger);
+  font-size: 0.85rem;
+}
+
+/* ── Notes view ────────────────────────────────────────────── */
+.notes-view {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  height: 100%;
+}
+
+.note-list {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  background: var(--bg-raised);
+  min-height: 0;
+}
+
+.note-list__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.85rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.note-list__items {
+  flex: 1;
+  margin: 0;
+  padding: 0.5rem;
+  list-style: none;
+  overflow-y: auto;
+}
+
+.note-list__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  margin-bottom: 0.35rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: none;
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.note-list__item:hover {
+  background: var(--bg-hover);
+}
+
+.note-list__item.is-active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.note-list__item-title {
+  font-weight: 600;
+  font-size: 0.92rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.note-list__item-preview {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.note-list__item-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.note-list__empty {
+  padding: 1.5rem 1rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.notes-view__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+}
+
+.notes-view__hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* ── Note editor ───────────────────────────────────────────── */
+.note-editor {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.note-editor__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.note-editor__back {
+  display: none;
+}
+
+.note-editor__title {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.note-editor__title::placeholder {
+  color: var(--text-muted);
+}
+
+.note-editor__status {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.note-editor__save-state {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.note-editor__body {
+  position: relative;
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.note-editor__content {
+  flex: 1;
+  padding: 1.25rem 1.5rem;
+  background: none;
+  border: none;
+  outline: none;
+  resize: none;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.note-editor__content::placeholder {
+  color: var(--text-muted);
+}
+
+.note-editor__interim {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 1rem;
+  right: 1rem;
+  padding: 0.6rem 0.9rem;
+  background: var(--bg-overlay);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.note-editor__speech-error {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 1rem;
+  right: 1rem;
+  padding: 0.5rem 0.9rem;
+  background: rgba(255, 71, 87, 0.12);
+  border-radius: var(--radius-md);
+  color: var(--danger);
+  font-size: 0.85rem;
+}
+
+.note-editor__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border);
+  background: var(--bg-raised);
+}
+
+.note-editor__actions-spacer {
+  flex: 1;
+}
+
+.is-recording {
+  border-color: var(--danger) !important;
+  color: var(--danger) !important;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* ── Plan wizard ───────────────────────────────────────────── */
+.plan-wizard__targets {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.plan-wizard__question {
+  margin: 0;
+  font-weight: 600;
+}
+
+.plan-wizard__divider {
+  margin: 0.25rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.plan-wizard__boards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.plan-wizard__boards .ui-btn {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.plan-wizard__loading {
+  display: flex;
+  justify-content: center;
+  padding: 2.5rem 0;
+}
+
+.plan-wizard__error {
+  margin: 0 0 0.75rem;
+  padding: 0.6rem 0.9rem;
+  background: rgba(255, 71, 87, 0.12);
+  border-radius: var(--radius-md);
+  color: var(--danger);
+  font-size: 0.88rem;
+}
+
+.plan-wizard__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.plan-preview__summary {
+  margin: 0 0 0.5rem;
+  color: var(--text-secondary);
+}
+
+.plan-preview__board {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+}
+
+.plan-preview__model {
+  margin-left: 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.plan-preview__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.plan-preview__card {
+  padding: 0.75rem 0.9rem;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.plan-preview__card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.plan-preview__card-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.plan-preview__card-description {
+  margin: 0.4rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.plan-preview__card-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+/* ── Kanban ────────────────────────────────────────────────── */
+.kanban-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.kanban-view__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.kanban-view__picker {
+  width: auto;
+  min-width: 180px;
+  flex: 0 1 auto;
+}
+
+.kanban-view__columns {
+  flex: 1;
+  display: flex;
+  gap: 0.9rem;
+  padding: 1rem;
+  overflow-x: auto;
+  align-items: flex-start;
+  min-height: 0;
+}
+
+.kanban-column {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 290px;
+  max-height: 100%;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.kanban-column.is-drag-over {
+  border-color: var(--accent);
+  background: var(--bg-overlay);
+}
+
+.kanban-column__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 0.85rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.kanban-column__name {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  padding: 0;
+}
+
+.kanban-column__count {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  background: var(--bg-hover);
+  padding: 0.05rem 0.5rem;
+  border-radius: 999px;
+}
+
+.kanban-column__delete {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0 0.2rem;
+  border-radius: var(--radius-sm);
+}
+
+.kanban-column__delete:hover {
+  color: var(--danger);
+}
+
+.kanban-column__cards {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.7rem;
+  overflow-y: auto;
+  min-height: 40px;
+}
+
+.kanban-column__add {
+  padding: 0.6rem 0.7rem;
+  border-top: 1px solid var(--border);
+}
+
+.kanban-card {
+  padding: 0.7rem 0.8rem;
+  background: var(--bg-overlay);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: grab;
+  transition: border-color 0.15s ease;
+}
+
+.kanban-card:hover {
+  border-color: var(--border-strong);
+}
+
+.kanban-card:active {
+  cursor: grabbing;
+}
+
+.kanban-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.kanban-card__title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.kanban-card__description {
+  margin: 0.35rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.kanban-card__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+}
+
+.kanban-card__note-mark {
+  margin-left: auto;
+  font-size: 0.8rem;
+}
+
+/* ── Settings & card modal ─────────────────────────────────── */
+.settings-modal__section {
+  margin-bottom: 1.25rem;
+}
+
+.settings-modal__section h3 {
+  margin: 0 0 0.6rem;
+  font-size: 0.95rem;
+}
+
+.settings-modal__section .ui-field {
+  margin-bottom: 0.7rem;
+}
+
+.settings-modal__detail {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
+.settings-modal__status {
+  margin: 0.5rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.settings-modal__message {
+  margin: 0;
+  color: var(--accent-hover);
+  font-size: 0.88rem;
+}
+
+.card-modal__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+/* ── Mobile ────────────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .notes-view {
+    grid-template-columns: 1fr;
+  }
+
+  /* List/editor become two screens: show one at a time. */
+  .notes-view.is-editing .note-list {
+    display: none;
+  }
+
+  .notes-view:not(.is-editing) .note-editor,
+  .notes-view:not(.is-editing) .notes-view__empty {
+    display: none;
+  }
+
+  .note-editor__back {
+    display: inline-flex;
+  }
+
+  .app-shell__brand span {
+    display: none;
+  }
+
+  .kanban-view__columns {
+    scroll-snap-type: x mandatory;
+  }
+
+  .kanban-column {
+    flex: 0 0 85vw;
+    scroll-snap-align: center;
+  }
+}

@@ -1,7 +1,10 @@
 [tools]
 node = "22"
-"npm:pnpm" = "11.5.0"
-starship = "latest"
+"npm:pnpm" = "10.33.0"
 
 [settings]
 experimental = true
+
+allowBuilds:
+  better-sqlite3: true
+  esbuild: true
