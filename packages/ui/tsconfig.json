@@ -1,0 +1,9 @@
+{
+  "extends": "@agenkan/config/tsconfig.web.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["src"]
+}

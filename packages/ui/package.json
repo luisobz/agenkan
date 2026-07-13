@@ -1,0 +1,31 @@
+{
+  "name": "@agenkan/ui",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Base UI components shared by AgenKan frontends",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./styles.css": "./src/styles.css"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint src"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@agenkan/config": "workspace:*",
+    "@types/react": "^19.1.4",
+    "eslint": "^9.27.0",
+    "react": "^19.1.0",
+    "typescript": "^5.8.3"
+  }
+}

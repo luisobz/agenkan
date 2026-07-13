@@ -1,71 +1,106 @@
 # AgenKan
 
-AgenKan es una aplicación de escritorio diseñada para transformar tus notas de texto libre en planes estructurados y procesables dentro de **Vikunja**, utilizando la potencia de la Inteligencia Artificial a través de **Ollama** en modo local.
+Bloc de notas con tablero kanban integrado y planificador con IA local.
+Escribe (o dicta) ideas en texto libre y la IA, vía **Ollama**, las convierte
+en tarjetas accionables dentro de un kanban propio — sin servicios externos.
 
-## Características Principales
+## Arquitectura
 
-- **Gestión de Notas Locales**: Escribe tus ideas sin estructura, la aplicación guarda todo localmente mediante SQLite.
-- **Planificador Inteligente**: Utiliza LLMs locales (a través de Ollama) para analizar tus notas y deducir tareas, subtareas, etiquetas y descripciones.
-- **Tres Modos de Acción**:
-  - 📂 **Crear proyecto nuevo**: La IA infiere un nombre de proyecto y las tareas relacionadas.
-  - 🔗 **Usar proyecto existente**: La IA asigna tareas a un proyecto que ya tengas en Vikunja.
-  - ⚙️ **Management**: La IA puede crear o administrar componentes globales, como "Etiquetas" (Labels), si mencionas que necesitas categorizar algo.
-- **Historial de Logs (Auditoría)**: Revisa exactamente qué prompt crudo (raw response) devolvió Ollama, y qué acciones se intentaron lanzar sobre el API de Vikunja. Excelente para debug y análisis del comportamiento de tu modelo.
-- **Múltiples Tokens de Seguridad**: Posibilidad de configurar tokens base y tokens granulares para operaciones específicas (Creación, Modificación, Management) de cara a proteger tu instancia de Vikunja.
+Monorepo **pnpm + Turborepo** con separación clara entre apps y paquetes:
+
+```
+agenkan/
+├── apps/
+│   ├── api/        # Servidor Fastify + SQLite (clean architecture)
+│   │   └── src/
+│   │       ├── domain/          # Entidades, puertos y servicios de negocio
+│   │       ├── infrastructure/  # SQLite, cliente Ollama, prompts
+│   │       └── presentation/    # Rutas HTTP, auth, manejo de errores
+│   ├── web/        # Frontend React (notas + kanban + planner), responsive
+│   │   └── src/
+│   │       ├── modules/         # notes / kanban / planner / settings / connection
+│   │       ├── composables/     # hooks reutilizables (voz, debounce)
+│   │       └── lib/             # cliente API tipado
+│   └── mobile/     # Wrapper Capacitor → APK Android
+├── packages/
+│   ├── shared/     # Schemas zod: el contrato único entre API y clientes
+│   ├── ui/         # Componentes base + design tokens
+│   └── config/     # tsconfig compartidos
+└── .github/workflows/android-apk.yml   # Compila la APK en CI
+```
+
+El modelo de despliegue: el **servidor** (API + base de datos SQLite + web
+compilada) corre en tu ordenador y publica un puerto. Cualquier cliente —
+navegador del PC o APK del móvil — se conecta a ese endpoint con una
+contraseña y trabaja sobre los mismos datos.
+
+## Características
+
+- **Bloc de notas** con autoguardado, búsqueda y estado (borrador/planificada).
+- **Dictado por voz**: Web Speech API en navegador y reconocimiento nativo de
+  Android en la APK.
+- **Kanban propio**: tableros, columnas y tarjetas con drag & drop,
+  etiquetas y prioridades. Sin dependencias de Vikunja ni terceros.
+- **Planificador IA**: eliges el destino (tablero nuevo o existente), el
+  modelo propone un plan con salida estructurada (JSON Schema + validación
+  zod + reintento con feedback) y tú lo apruebas antes de aplicarlo.
+- **Auditoría**: cada ejecución del planner queda registrada (modelo usado,
+  respuesta cruda, resultado).
+- **Sync en tiempo real**: los clientes mantienen una conexión SSE con el
+  servidor; un cambio hecho en el PC aparece en el móvil al instante.
+- **PWA instalable**: la web incluye manifest y service worker, así que puede
+  instalarse desde el navegador como app (alternativa ligera a la APK).
+- **Una sola contraseña** protege toda la API (`API_PASSWORD`).
 
 ## Requisitos
 
-- [Node.js](https://nodejs.org/) v22 o superior
-- [pnpm](https://pnpm.io/) v11 o superior
-- Una instancia de [Ollama](https://ollama.com/) corriendo localmente o en tu red (por defecto en `http://localhost:11434`) con al menos un modelo descargado (ej. `llama3`, `mistral`, `phi3`).
-- Una instancia de [Vikunja](https://vikunja.io/) y un token de API válido.
+- [Node.js](https://nodejs.org/) 22+ y [pnpm](https://pnpm.io/) 10+
+- [Ollama](https://ollama.com/) accesible desde el servidor, con un modelo
+  descargado (ej. `qwen3:8b`)
 
-## Instalación
-
-1. Clona este repositorio:
-   ```bash
-   git clone <repo-url> agenkan
-   cd agenkan
-   ```
-
-2. Instala las dependencias (se recomienda usar `mise` para la versión de Node y pnpm):
-   ```bash
-   pnpm install
-   ```
-
-3. (Opcional) Si la dependencia de base de datos no compila, el proyecto cuenta con un script de limpieza y reinstalación profunda:
-   ```bash
-   pnpm reinstall:full
-   ```
-
-## Ejecución
-
-### Entorno de Desarrollo
-
-Para arrancar la aplicación en modo desarrollo (con recarga en caliente para el renderer y el backend IPC):
+## Puesta en marcha
 
 ```bash
+pnpm install
+cp .env.example .env       # edita API_PASSWORD y la config de Ollama
+
+# Desarrollo (API en :3210 + web con hot-reload en :5173)
 pnpm dev
+
+# Producción
+pnpm build                 # compila shared, ui, web y api
+pnpm start                 # sirve API + web en http://HOST:PORT
 ```
 
-### Compilar para Producción
+Para usarlo desde fuera de casa, publica el puerto del servidor (router o
+túnel) y usa una contraseña fuerte. La APK y el navegador solo necesitan el
+endpoint y esa contraseña.
 
-Para generar los empaquetables listos para distribuir (AppImage, deb, snap, etc. según tu SO):
+## App Android
 
-```bash
-pnpm build
-```
+Ver [apps/mobile/README.md](apps/mobile/README.md). Resumen: ejecuta el
+workflow **Android APK** en GitHub Actions y descarga el artefacto, o
+compílala en local con Android Studio/Gradle. Al abrirla, introduce el
+endpoint (`http://tu-ip:3210`) y la contraseña; queda configurada.
 
-## Configuración Inicial
+## Scripts útiles
 
-1. Al abrir **AgenKan**, pulsa en el botón de configuración (el icono ⚙️ en la esquina superior derecha).
-2. En la sección **Vikunja**, ingresa la URL de tu API (por ejemplo `http://localhost:3456/api/v1`) y tu Token de API principal.
-   * *Opcional*: Rellena los Tokens específicos si tu cuenta de Vikunja tiene permisos separados por acción.
-3. En la sección **Ollama**, ingresa la URL y despliega la lista para seleccionar el modelo que deseas que analice tus notas.
-4. ¡Guarda los cambios y comienza a escribir!
+| Comando             | Descripción                                         |
+| ------------------- | --------------------------------------------------- |
+| `pnpm dev`          | Levanta API y web en modo desarrollo                |
+| `pnpm build`        | Build de producción de todo el monorepo             |
+| `pnpm start`        | Arranca el servidor (sirve también la web)          |
+| `pnpm typecheck`    | Comprueba tipos en todos los paquetes               |
+| `pnpm test`         | Tests: integración de la API + Vitest del frontend  |
+| `pnpm lint`         | ESLint en todos los paquetes                        |
+| `pnpm format`       | Formatea el repo con Prettier                       |
+| `pnpm android:sync` | Sincroniza la web compilada con el proyecto Android |
 
+El workflow **CI** (`.github/workflows/ci.yml`) ejecuta build, typecheck,
+lint, formato y tests en cada push y pull request.
 
------------------------------------------------------
+---
+
 AgenKan © 2026 Luis Ballester Zafra. All rights reserved.
 
 This repository and all associated source code, documentation, UI design, product naming, branding, and assets are proprietary.

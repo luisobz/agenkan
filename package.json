@@ -1,38 +1,29 @@
 {
   "name": "agenkan",
-  "version": "0.1.0",
-  "description": "AI-powered note-to-task planner for Vikunja",
-  "main": "./out/main/index.js",
-  "scripts": {
-    "dev": "electron-vite dev -- --no-sandbox",
-    "build": "electron-vite build",
-    "preview": "electron-vite preview",
-    "postinstall": "electron-vite build && electron-rebuild -f -w better-sqlite3",
-    "clean": "rm -rf node_modules .pnpm-store .vite out",
-    "clean:full": "rm -rf node_modules .pnpm-store .vite out pnpm-lock.yaml",
-    "reinstall": "pnpm clean && pnpm install",
-    "reinstall:full": "pnpm clean:full && pnpm install",
-    "typecheck:node": "tsc --noEmit -p tsconfig.node.json",
-    "typecheck:web": "tsc --noEmit -p tsconfig.web.json",
-    "typecheck": "pnpm typecheck:node && pnpm typecheck:web"
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-powered notepad with a built-in kanban board. Notes become plans, plans become cards.",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=22"
   },
-  "dependencies": {
-    "better-sqlite3": "^11.9.1",
-    "marked": "^15.0.6",
-    "ollama": "^0.5.14",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "zod": "^3.25.23"
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:api": "pnpm --filter @agenkan/api dev",
+    "dev:web": "pnpm --filter @agenkan/web dev",
+    "build": "turbo run build",
+    "start": "pnpm --filter @agenkan/api start",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "turbo run test",
+    "android:sync": "pnpm --filter @agenkan/mobile sync",
+    "clean": "rm -rf node_modules .turbo apps/*/node_modules apps/*/dist packages/*/node_modules packages/*/dist"
   },
   "devDependencies": {
-    "@electron/rebuild": "^4.0.1",
-    "@types/better-sqlite3": "^7.6.13",
-    "@types/react": "^19.1.4",
-    "@types/react-dom": "^19.1.5",
-    "@vitejs/plugin-react": "^4.5.2",
-    "electron": "^36.3.1",
-    "electron-vite": "^5.0.0",
-    "typescript": "^5.8.3",
-    "vite": "^5.4.5"
+    "@agenkan/config": "workspace:*",
+    "prettier": "^3.5.3",
+    "turbo": "^2.5.0"
   }
 }
