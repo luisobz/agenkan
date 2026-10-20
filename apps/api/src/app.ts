@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import fastifyCors from '@fastify/cors'
+import fastifyRateLimit from '@fastify/rate-limit'
 import fastifyStatic from '@fastify/static'
 import Fastify, { type FastifyInstance } from 'fastify'
 import type { AppConfig } from './config.js'
@@ -63,6 +64,12 @@ export async function buildApp(
 
   const app = Fastify({ logger: true })
 
+  // Apply one IP-based budget before authentication and route handlers so
+  // database-backed endpoints and password verification cannot be flooded.
+  await app.register(fastifyRateLimit, {
+    max: 300,
+    timeWindow: '1 minute'
+  })
   await app.register(fastifyCors, { origin: true })
   registerErrorHandler(app)
   registerAuth(app, config.apiPassword)
