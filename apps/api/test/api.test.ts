@@ -76,6 +76,16 @@ test('health endpoint is public', async () => {
   await app.close()
 })
 
+test('limits requests from one client IP', async () => {
+  const app = await createTestApp()
+  let response
+  for (let i = 0; i < 301; i += 1) {
+    response = await app.inject({ method: 'GET', url: '/api/health' })
+  }
+  assert.equal(response?.statusCode, 429)
+  await app.close()
+})
+
 test('full flow: note → generated plan → applied to a new board', async () => {
   const app = await createTestApp()
 

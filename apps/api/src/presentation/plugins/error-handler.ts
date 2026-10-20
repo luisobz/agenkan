@@ -5,6 +5,17 @@ import { NotFoundError, PlanGenerationError } from '../../domain/errors.js'
 /** Maps domain and validation errors to consistent HTTP responses. */
 export function registerErrorHandler(app: FastifyInstance): void {
   app.setErrorHandler((error, request, reply) => {
+    if (
+      error instanceof Error &&
+      'statusCode' in error &&
+      error.statusCode === 429
+    ) {
+      return reply.code(429).send({
+        error: 'rate_limit_exceeded',
+        message: error.message
+      })
+    }
+
     if (error instanceof ZodError) {
       return reply.code(400).send({
         error: 'validation_error',

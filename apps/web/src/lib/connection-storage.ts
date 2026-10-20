@@ -1,11 +1,12 @@
-/** Connection settings the user configures once per device. */
+/** Connection settings held in memory after the user authenticates. */
 export interface ConnectionConfig {
   /** API base URL, e.g. "https://mi-casa.duckdns.org:3210". */
   baseUrl: string
   password: string
 }
 
-const STORAGE_KEY = 'agenkan.connection'
+const ENDPOINT_STORAGE_KEY = 'agenkan.endpoint'
+const LEGACY_STORAGE_KEY = 'agenkan.connection'
 
 /**
  * When the web app is served by the API itself (desktop usage), the endpoint
@@ -17,27 +18,22 @@ export function defaultBaseUrl(): string {
     : ''
 }
 
-export function loadConnection(): ConnectionConfig | null {
+export function loadConnection(): string | null {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return null
-    const parsed = JSON.parse(raw) as Partial<ConnectionConfig>
-    if (
-      typeof parsed.baseUrl !== 'string' ||
-      typeof parsed.password !== 'string'
-    ) {
-      return null
-    }
-    return { baseUrl: parsed.baseUrl, password: parsed.password }
+    const baseUrl = localStorage.getItem(ENDPOINT_STORAGE_KEY)
+    // Drop the old record without reading its password into application code.
+    localStorage.removeItem(LEGACY_STORAGE_KEY)
+    return baseUrl
   } catch {
     return null
   }
 }
 
-export function saveConnection(config: ConnectionConfig): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
+export function saveConnection(baseUrl: string): void {
+  localStorage.setItem(ENDPOINT_STORAGE_KEY, baseUrl)
 }
 
 export function clearConnection(): void {
-  localStorage.removeItem(STORAGE_KEY)
+  localStorage.removeItem(ENDPOINT_STORAGE_KEY)
+  localStorage.removeItem(LEGACY_STORAGE_KEY)
 }
