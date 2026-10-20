@@ -15,16 +15,17 @@ import { ServerEventsProvider } from './ServerEventsProvider.js'
 /**
  * Blocks the app until a verified connection exists. The first time (or after
  * logout / 401) it shows the setup form: API endpoint + password. Once
- * verified, it provides the ApiClient to the rest of the app and remembers
- * the configuration on this device.
+ * verified, it keeps the password in memory and remembers only the endpoint.
  */
 export function ConnectionGate({ children }: { children: ReactNode }) {
-  const [connection, setConnection] = useState<ConnectionConfig | null>(
-    loadConnection
+  const [savedBaseUrl, setSavedBaseUrl] = useState(
+    () => loadConnection() ?? defaultBaseUrl()
   )
+  const [connection, setConnection] = useState<ConnectionConfig | null>(null)
 
   const disconnect = useCallback(() => {
     clearConnection()
+    setSavedBaseUrl(defaultBaseUrl())
     setConnection(null)
   }, [])
 
@@ -40,8 +41,10 @@ export function ConnectionGate({ children }: { children: ReactNode }) {
   if (!contextValue || !connection) {
     return (
       <ConnectionForm
+        initialBaseUrl={savedBaseUrl}
         onConnected={(config) => {
-          saveConnection(config)
+          saveConnection(config.baseUrl)
+          setSavedBaseUrl(config.baseUrl)
           setConnection(config)
         }}
       />
@@ -58,11 +61,13 @@ export function ConnectionGate({ children }: { children: ReactNode }) {
 }
 
 function ConnectionForm({
+  initialBaseUrl,
   onConnected
 }: {
+  initialBaseUrl: string
   onConnected: (config: ConnectionConfig) => void
 }) {
-  const [baseUrl, setBaseUrl] = useState(defaultBaseUrl())
+  const [baseUrl, setBaseUrl] = useState(initialBaseUrl)
   const [password, setPassword] = useState('')
   const [checking, setChecking] = useState(false)
   const [error, setError] = useState<string | null>(null)

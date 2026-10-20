@@ -1,4 +1,4 @@
-/** Connection settings the user configures once per device. */
+/** Connection settings held in memory after the user authenticates. */
 export interface ConnectionConfig {
   /** API base URL, e.g. "https://mi-casa.duckdns.org:3210". */
   baseUrl: string
@@ -6,7 +6,6 @@ export interface ConnectionConfig {
 }
 
 const ENDPOINT_STORAGE_KEY = 'agenkan.endpoint'
-const PASSWORD_STORAGE_KEY = 'agenkan.password'
 const LEGACY_STORAGE_KEY = 'agenkan.connection'
 
 /**
@@ -19,42 +18,22 @@ export function defaultBaseUrl(): string {
     : ''
 }
 
-export function loadConnection(): ConnectionConfig | null {
+export function loadConnection(): string | null {
   try {
     const baseUrl = localStorage.getItem(ENDPOINT_STORAGE_KEY)
-    const password = sessionStorage.getItem(PASSWORD_STORAGE_KEY)
-    if (baseUrl !== null && password !== null) {
-      return { baseUrl, password }
-    }
-
-    // Migrate the previous format once, then remove its persisted password.
-    const legacy = localStorage.getItem(LEGACY_STORAGE_KEY)
-    if (legacy) {
-      const parsed = JSON.parse(legacy) as Partial<ConnectionConfig>
-      if (
-        typeof parsed.baseUrl === 'string' &&
-        typeof parsed.password === 'string'
-      ) {
-        localStorage.setItem(ENDPOINT_STORAGE_KEY, parsed.baseUrl)
-        sessionStorage.setItem(PASSWORD_STORAGE_KEY, parsed.password)
-        localStorage.removeItem(LEGACY_STORAGE_KEY)
-        return { baseUrl: parsed.baseUrl, password: parsed.password }
-      }
-      localStorage.removeItem(LEGACY_STORAGE_KEY)
-    }
-    return null
+    // Drop the old record without reading its password into application code.
+    localStorage.removeItem(LEGACY_STORAGE_KEY)
+    return baseUrl
   } catch {
     return null
   }
 }
 
-export function saveConnection(config: ConnectionConfig): void {
-  localStorage.setItem(ENDPOINT_STORAGE_KEY, config.baseUrl)
-  sessionStorage.setItem(PASSWORD_STORAGE_KEY, config.password)
+export function saveConnection(baseUrl: string): void {
+  localStorage.setItem(ENDPOINT_STORAGE_KEY, baseUrl)
 }
 
 export function clearConnection(): void {
   localStorage.removeItem(ENDPOINT_STORAGE_KEY)
   localStorage.removeItem(LEGACY_STORAGE_KEY)
-  sessionStorage.removeItem(PASSWORD_STORAGE_KEY)
 }
