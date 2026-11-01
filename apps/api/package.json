@@ -21,7 +21,7 @@
     "better-sqlite3": "^11.9.1",
     "fastify": "^5.12.7",
     "ollama": "^0.5.14",
-    "zod": "^3.25.23"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@agenkan/config": "workspace:*",
